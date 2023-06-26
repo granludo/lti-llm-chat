@@ -1,0 +1,99 @@
+{% extends 'chatgpt/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="title">{{ chat.title }}</div>
+    <button onclick="window.location.href='/'" class="back-chat">←</button>
+    <div class="message-container">
+        <div class="row">
+            <div class="chat-class">
+                {% for message in messages %}
+                    {% if message.is_question and message.deleted == False %}
+                        <div class="question">
+                            <p>{{ message.content }}</p>
+                            <span class="meta">{{ message.sender.first_name }} {{ message.sender.last_name }} - {{ message.created_at }}</span>
+                        </div>
+                    {% elif message.deleted == False %}
+                        <div class="message">
+                            <p>{{ message.content }}</p>
+                            <span class="meta">{{ message.sender.first_name }} {{ message.sender.last_name }} - {{ message.created_at }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span style="margin: 8px"></span>
+            <div class="questions">
+                {% for message in messages %}
+                    {% if message.is_question and message.processed == False and message.deleted == False %}
+                        <div class="message">
+                            <p>{{ message.content }}</p>
+                            <span class="meta">
+                                {{ message.sender.first_name }} {{ message.sender.last_name }} - {{ message.created_at }}
+                                
+                                {% for vote in votes %}
+                                    {% if vote.message == message %}
+                                        {% if vote.vote == True %}
+                                            <div class="actions">
+                                                <a>
+                                                    <img class="like" src="{% static 'voted.png' %}">
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <div class="actions">
+                                                <a>
+                                                    <img class="dislike" src="{% static 'voted.png' %}">
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="actions">
+                                    <a href="{% url 'like_message' message_id=message.id %}">
+                                        <img class="like" src="{% static 'vote.png' %}">
+                                    </a>
+                                    <a href="{% url 'dislike_message' message_id=message.id %}">
+                                        <img class="dislike" src="{% static 'vote.png' %}">
+                                    </a>
+                                </div>
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span style="margin: 8px"></span>
+            <div class="chat-gpt">
+                {% for message in messages %}
+                    {% if message.is_question and message.processed %}
+                        <div class="question">
+                            <p>{{ message.content }}</p>
+                            <span class="meta">{{ message.sender.first_name }} {{ message.sender.last_name }} - {{ message.created_at }}</span>
+                        </div>
+                        {% for answer in answers %}
+                            {% if answer.message == message %}
+                                <div class="message">
+                                    <p>{{ answer.content }}</p>
+                                    <span class="meta">chat-gpt - {{ answer.created_at }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="input-container">
+        <form id="message-form" method="POST" action="{% url 'create_message'%}">
+            {% csrf_token %}
+            <input type="hidden" name="chat_id" value="{{ chat.id }}">
+            <input class="in-send" type="text" name="content" placeholder="Send a message..." required>
+            <label class="checkbox">
+                <input type="checkbox" name="checkbox" value="1">
+                Question
+            </label>
+            <button class="send" type="submit">Send</button>
+          </form>
+    </div>
+</div>
+{% endblock %}

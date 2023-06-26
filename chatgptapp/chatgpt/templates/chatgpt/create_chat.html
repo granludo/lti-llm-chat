@@ -1,0 +1,14 @@
+{% extends "chatgpt/base.html" %}
+
+{% block content %}
+<div class="container-create-chat">
+  <div class="title">New chat</div><br>
+  <button onclick="window.location.href='/'" class="back">←</button>
+  <form method="POST" action="{% url 'create_chat' %}">
+      {% csrf_token %}
+      <span style = "margin-right: 30px"></span><label for="title">Title:</label>
+      <input class="in-create" type="text" name="title" required>
+      <button class="create" type="submit">Create</button>
+  </form>
+</div>
+{% endblock %}

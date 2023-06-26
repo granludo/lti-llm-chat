@@ -1,0 +1,16 @@
+{% extends "chatgpt/base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="title">Your Chats</div>
+    {% for chat in chats %}
+      <center>
+        <div class="chat">
+          <a style="color:black; text-decoration:none" href="{% url 'chat_detail' chat_id=chat.id %}">{{ chat.title }}</a>
+        </div>
+      </center>
+      <br><br>
+    {% endfor %}
+  <button onclick="window.location.href='/form_new_chat'" class="button-index">+</button>
+</div>
+{% endblock %}
